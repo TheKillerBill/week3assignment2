@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <stdbool.h>
+
+typedef struct list{ //linked list structure
+    int data ;
+    struct list *next;
+    struct list *prev;
+}list;
+
+list* create_list( int a ){ //function to create list from scratch
+    list* head = malloc(sizeof(list));
+    head -> data = a;
+    head -> next = NULL;
+    head -> prev = NULL;
+    return head;
+}
+
+list *add_to_front( int b , list* c ){  //function add element at the front of a list
+    list* head = create_list( b );
+    head -> next = c;
+    return head;
+}
+
+void print_list( list* l ){  //function to print a linked list
+    int cnt = 0;
+    while( l != NULL ){
+        printf("%2d : ", l->data );
+        l = l -> next ;
+        cnt++;
+        if ( cnt%20 == 0 ){  //counter to skip a line after 20 elements have been printed
+            printf("\n");
+        }
+    }
+    printf("\n");
+}
+
+list *list_200_integers(list *head ){ //function to create a list of a 200 random integers
+    int i ;
+    srand(time(0));
+    head = create_list( rand() % 50 );
+    for( i = 1 ; i <= 200 ; i++ ){
+        head = add_to_front( rand() % 50 , head ); // add to front random numbers from 0 to 49
+    }
+    return head;
+}
+
+void bubble_sort(list *head ){ //function to sort the list using optimized bubble sort
+    bool sorted = false; //boolean to check if the list is sorted
+    int i , temp;
+    list *ptr; //new list to not change position of head
+    while( !sorted ){ //if list is not sorted while loop keeps going
+
+        ptr = head;
+        sorted = true;  //sorted sets to true
+
+        while( (ptr->next) != NULL ){
+
+            if ( (ptr -> data) > (ptr->next -> data) ){
+
+                sorted = false;  //sorted sets to false since the list is not sorted
+                temp             = ptr ->data;
+                ptr->data       = ptr->next->data;
+                ptr->next->data = temp; //swap of values
+            }
+
+            ptr = ptr->next;  //move to the next element
+
+        }
+    }
+}
+void remove_element(list *before_del){ // A function that skips the next element of the list
+    int i;
+    list *temp;
+    temp = before_del->next;
+    before_del->next = temp->next;
+    free(temp);
+}
+ 
+
+int main(void){
+    list *head;
+    head = list_200_integers(head); // Here we create a list of 200 random integers
+    printf("\n*****Unsorted List*****\n\n"); 
+    print_list(head); // We print the unsorted list
+    bubble_sort(head); // Here we sort the list
+    printf("\n*****Sorted List******\n\n"); // 
+    print_list(head); // We print the sorted list
+    list* ptr = head , *prev;
+    prev = ptr; // prev will be the first element
+    ptr = ptr->next; // prt will be the second element
+    int i = 0;
+    while ( ptr->next != NULL ){ 
+
+        if ( prev->data == ptr->data ){ // if the first element is equal to the second element
+
+            remove_element(prev); // we remove the second element
+            ptr = prev; 
+        }
+        else{
+
+            prev = prev->next; // if they're not equal we go to the next element
+        }
+        ptr = ptr->next; // ptr becomes the second element yet again
+    }
+
+    if ( prev->data == ptr->data ){ // Special case of the removing the last element 
+        remove_element(prev); // if it's equal to the second-to-last element
+    }
+    printf("\n*****Removed repeated elements******\n\n");
+    print_list(head); //prints the unique elements
+
+    return 0;
+}
